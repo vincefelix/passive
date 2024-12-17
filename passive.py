@@ -50,7 +50,6 @@ def search_pages_jaunes(name):
             user = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "li.bi")))
             contact_found = True
 
-            # Récupération des informations
             full_name = user.find_element(By.CSS_SELECTOR, "a.bi-denomination h3").text
             address = user.find_element(By.CSS_SELECTOR, "div.bi-address a").text.replace("Voir le plan", "")
             phone_number = driver.execute_script("""
@@ -157,6 +156,7 @@ def search_in_json(full_name):
 #     print(f"Résultats sauvegardés dans {filename}")
 
 def save_results(data):
+    print(data)
     if not os.path.exists("found"):
         os.makedirs("found")
     text_filename = os.path.join("found", "result.txt")
@@ -175,30 +175,92 @@ def save_results(data):
     print(f"Résultats sauvegardés dans {text_filename} et {json_filename}")
 
 # Interface graphique
+# def launch_gui():
+#     root = tk.Tk()
+#     root.title("Outil OSINT Passif Avancé")
+#     root.geometry("500x600")
+
+#     tk.Label(root, text="Recherche par IP:").pack(pady=5)
+#     ip_entry = tk.Entry(root)
+#     ip_entry.pack(pady=5)
+#     tk.Button(root, text="Rechercher IP", command=lambda: search_ip(ip_entry.get().strip())).pack(pady=5)
+
+#     tk.Label(root, text="Recherche par Nom Complet (PagesJaunes ou JSON):").pack(pady=5)
+#     name_entry = tk.Entry(root)
+#     name_entry.pack(pady=5)
+#     tk.Button(root, text="Rechercher sur PagesJaunes ou JSON", command=lambda: search_pages_jaunes(name_entry.get().strip())).pack(pady=5)
+
+#     tk.Label(root, text="Recherche par Nom d'Utilisateur:").pack(pady=5)
+#     username_entry = tk.Entry(root)
+#     username_entry.pack(pady=5)
+#     tk.Button(root, text="Rechercher Username", command=lambda: asyncio.run(search_username_async(username_entry.get().strip()))).pack(pady=5)
+
+#     output_label = tk.Label(root, text="", justify="left", wraplength=480, anchor="w")
+#     output_label.pack(pady=10)
+
+#     root.mainloop()
+
+# Interface graphique
 def launch_gui():
     root = tk.Tk()
     root.title("Outil OSINT Passif Avancé")
     root.geometry("500x600")
 
+    # Recherche par IP
     tk.Label(root, text="Recherche par IP:").pack(pady=5)
     ip_entry = tk.Entry(root)
     ip_entry.pack(pady=5)
-    tk.Button(root, text="Rechercher IP", command=lambda: search_ip(ip_entry.get().strip())).pack(pady=5)
+    tk.Button(
+        root,
+        text="Rechercher IP",
+        command=lambda: display_result(search_ip(ip_entry.get().strip()))
+    ).pack(pady=5)
 
+    # Recherche par Nom Complet (PagesJaunes ou JSON)
     tk.Label(root, text="Recherche par Nom Complet (PagesJaunes ou JSON):").pack(pady=5)
     name_entry = tk.Entry(root)
     name_entry.pack(pady=5)
-    tk.Button(root, text="Rechercher sur PagesJaunes ou JSON", command=lambda: search_pages_jaunes(name_entry.get().strip())).pack(pady=5)
+    tk.Button(
+        root,
+        text="Rechercher sur PagesJaunes ou JSON",
+        command=lambda: display_result(search_pages_jaunes(name_entry.get().strip()))
+    ).pack(pady=5)
 
+    # Recherche par Nom d'Utilisateur
     tk.Label(root, text="Recherche par Nom d'Utilisateur:").pack(pady=5)
     username_entry = tk.Entry(root)
     username_entry.pack(pady=5)
-    tk.Button(root, text="Rechercher Username", command=lambda: asyncio.run(search_username_async(username_entry.get().strip()))).pack(pady=5)
-
-    output_label = tk.Label(root, text="", justify="left", wraplength=480, anchor="w")
-    output_label.pack(pady=10)
+    tk.Button(
+        root,
+        text="Rechercher Username",
+        command=lambda: asyncio.run(display_username_results(username_entry.get().strip()))
+    ).pack(pady=5)
+    
+    # Label pour afficher les résultats
+    global output_label
+    output_label = tk.Label(root, text="", justify="left", wraplength=480, anchor="w", bg="lightgrey", relief="sunken", padx=10, pady=10)
+    output_label.pack(pady=10, fill="both", expand=True)
 
     root.mainloop()
+
+# Fonction d'affichage des résultats
+def display_result(result):
+    """
+    Met à jour l'output_label avec les résultats au format texte ou JSON.
+    """
+    if isinstance(result, dict):
+        result_text = json.dumps(result, indent=4, ensure_ascii=False)
+    else:
+        result_text = str(result)
+    output_label.config(text=result_text)
+
+async def display_username_results(username):
+    """
+    Récupère les résultats des recherches par username et met à jour l'output_label.
+    """
+    result = await search_username_async(username)
+    display_result(result)
+
 
 # Arguments via le terminal
 def main():
