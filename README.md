@@ -1,4 +1,4 @@
-# Outil OSINT Passif Avancé
+# Outil OSINT
 
 Ce projet est un outil pour effectuer des recherches en ligne de manière efficace.
 
