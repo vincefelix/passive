@@ -15,7 +15,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 import time
 
-# Fonction de configuration du driver Selenium
+# Configuration du driver Selenium
 def configure_driver():
     options = Options()
     options.add_argument("--headless")
@@ -26,7 +26,7 @@ def configure_driver():
     driver = webdriver.Chrome(options=options)
     return driver
 
-def wait_for_page_to_load(driver, timeout=5):
+def wait_for_page_to_load(driver, timeout=2):
     time_elapsed = 0
     while time_elapsed < timeout:
         if driver.execute_script("return document.readyState") == "complete":
@@ -177,7 +177,7 @@ def save_results(data):
 # Interface graphique
 def launch_gui():
     root = tk.Tk()
-    root.title("Outil OSINT Passif Avancé")
+    root.title("Outil OSINT")
     root.geometry("500x600")
 
     tk.Label(root, text="Recherche par IP:").pack(pady=5)
